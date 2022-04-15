@@ -1,0 +1,27 @@
+{
+  "name": "fullstackopen-viikko3",
+  "version": "1.0.0",
+  "description": "Fullstackopen kurssin viikon 3 tehtävät",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Juboskar/fullstackopen-viikko3.git"
+  },
+  "author": "juboskar",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Juboskar/fullstackopen-viikko3/issues"
+  },
+  "homepage": "https://github.com/Juboskar/fullstackopen-viikko3#readme",
+  "dependencies": {
+    "express": "^4.17.3"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+}
