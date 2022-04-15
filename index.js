@@ -1,6 +1,8 @@
 const express = require('express')
 const app = express()
 
+app.use(express.json())
+
 let persons = [
     {
         "name": "Arto Hellas",
@@ -52,6 +54,20 @@ app.delete('/api/persons/:id', (req, res) => {
 app.get('/info', (req, res) => {
     res.send(`<div>Phonebook has info for ${persons.length} people</div>
     <div>${new Date()}</div>`)
+})
+
+app.post('/api/persons', (req, res) => {
+    newId = null
+    while (!persons.map(p => p.id).includes(newId) && newId === null) { 
+        newId = Math.floor(Math.random() * 1000000)
+    }
+    const person = {
+        name: req.body.name,
+        number: req.body.number,
+        id: newId
+    }
+    persons = persons.concat(person)
+    res.json(person)
 })
 
 const PORT = 3001
