@@ -75,8 +75,8 @@ app.post('/api/persons', (req, res) => {
         })
     }
 
-    newId = null
-    while (!persons.map(p => p.id).includes(newId) && newId === null) {
+    let newId = null
+    while (persons.map(p => p.id).includes(newId) || newId === null) {
         newId = Math.floor(Math.random() * 1000000)
     }
     const person = {
