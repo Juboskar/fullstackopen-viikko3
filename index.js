@@ -57,8 +57,26 @@ app.get('/info', (req, res) => {
 })
 
 app.post('/api/persons', (req, res) => {
+    if (!req.body.name) {
+        return res.status(400).json({
+            error: 'name missing'
+        })
+    }
+
+    if (!req.body.number) {
+        return res.status(400).json({
+            error: 'number missing'
+        })
+    }
+
+    if (persons.map(p => p.name).includes( req.body.name)) {
+        return res.status(400).json({
+            error: 'name must be unique'
+        })
+    }
+
     newId = null
-    while (!persons.map(p => p.id).includes(newId) && newId === null) { 
+    while (!persons.map(p => p.id).includes(newId) && newId === null) {
         newId = Math.floor(Math.random() * 1000000)
     }
     const person = {
