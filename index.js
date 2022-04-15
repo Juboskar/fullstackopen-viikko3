@@ -37,10 +37,17 @@ app.get('/api/persons/:id', (req, res) => {
     const person = persons.find(p => p.id === id)
     if (person) {
         res.json(person)
-      } else {
+    } else {
         res.status(404).end()
-      }
-  })
+    }
+})
+
+app.delete('/api/persons/:id', (req, res) => {
+    const id = Number(req.params.id)
+    persons = persons.filter(p => p.id !== id)
+
+    response.status(204).end()
+})
 
 app.get('/info', (req, res) => {
     res.send(`<div>Phonebook has info for ${persons.length} people</div>
