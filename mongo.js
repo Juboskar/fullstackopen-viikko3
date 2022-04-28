@@ -1,3 +1,4 @@
+require('dotenv').config()
 const mongoose = require('mongoose')
 
 if (process.argv.length < 3) {
@@ -8,17 +9,15 @@ if (process.argv.length < 3) {
 
 const password = process.argv[2]
 
-const url =
-    `mongodb+srv://juboskar:${password}@cluster0.psjqe.mongodb.net/puhelinluettelo?retryWrites=true&w=majority`
-
+const url = process.env.MONGODB_URI
 mongoose.connect(url)
 
-const noteSchema = new mongoose.Schema({
+const personSchema = new mongoose.Schema({
     name: String,
     number: String,
 })
 
-const Person = mongoose.model('Person', noteSchema)
+const Person = mongoose.model('Person', personSchema)
 
 if (process.argv.length === 3) {
     console.log('phonebook: ')

@@ -1,7 +1,9 @@
+require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
 const app = express()
 const cors = require('cors')
+const Person = require('./models/person')
 
 app.use(express.json())
 morgan.token('data', (req, res) => { return JSON.stringify(req.body) })
@@ -10,28 +12,10 @@ app.use(cors())
 app.use(express.static('build'))
 
 
-let persons = [
-    {
-        "name": "Arto Hellas",
-        "number": "040-123456",
-        "id": 1
-    },
-    {
-        "name": "Ada Lovelace",
-        "number": "39-44-5323523",
-        "id": 2
-    },
-    {
-        "name": "Dan Abramov",
-        "number": "12-43-234345",
-        "id": 3
-    },
-    {
-        "name": "Mary Poppendieck",
-        "number": "39-23-6423122",
-        "id": 4
-    }
-]
+let persons = []
+Person.find({}).then(result => {
+    persons = result
+})
 
 app.get('/', (req, res) => {
     res.send('<h1>Hello World!</h1>')
@@ -76,7 +60,7 @@ app.post('/api/persons', (req, res) => {
         })
     }
 
-    if (persons.map(p => p.name).includes( req.body.name)) {
+    if (persons.map(p => p.name).includes(req.body.name)) {
         return res.status(400).json({
             error: 'name must be unique'
         })
@@ -86,13 +70,14 @@ app.post('/api/persons', (req, res) => {
     while (persons.map(p => p.id).includes(newId) || newId === null) {
         newId = Math.floor(Math.random() * 1000000)
     }
-    const person = {
+    const person = new Person({
         name: req.body.name,
         number: req.body.number,
         id: newId
-    }
-    persons = persons.concat(person)
-    res.json(person)
+    })
+    person.save().then(p => {
+        res.json(p)
+    })
 })
 
 const port = process.env.PORT || 3001
