@@ -11,72 +11,76 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms :d
 app.use(cors())
 app.use(express.static('build'))
 
-
-let persons = []
-Person.find({}).then(result => {
-    persons = result
-})
-
 app.get('/', (req, res) => {
     res.send('<h1>Hello World!</h1>')
 })
 
 app.get('/api/persons', (req, res) => {
-    res.json(persons)
+    Person.find({}).then(result => {
+        res.json(result)
+    })
 })
 
 app.get('/api/persons/:id', (req, res) => {
-    const id = Number(req.params.id)
-    const person = persons.find(p => p.id === id)
-    if (person) {
-        res.json(person)
-    } else {
-        res.status(404).end()
-    }
+    const id = req.params.id
+    Person.find({ id: id }).then(result => {
+        if (result) {
+            res.json(result)
+        } else {
+            res.status(404).end()
+        }
+    })
 })
 
 app.delete('/api/persons/:id', (req, res) => {
-    const id = Number(req.params.id)
-    persons = persons.filter(p => p.id !== id)
-
-    res.status(204).end()
+    Person.findOneAndRemove({ id: req.params.id })
+        .then(result => {
+            res.status(204).end()
+        })
+        .catch(error => console.log(error))
 })
 
+
 app.get('/info', (req, res) => {
-    res.send(`<div>Phonebook has info for ${persons.length} people</div>
+    Person.find({}).then(result => {
+        res.send(`<div>Phonebook has info for ${result.length} people</div>
     <div>${new Date()}</div>`)
+    })
 })
 
 app.post('/api/persons', (req, res) => {
-    if (!req.body.name) {
-        return res.status(400).json({
-            error: 'name missing'
-        })
-    }
+    Person.find({}).then(result => {
+        const persons = result
+        if (!req.body.name) {
+            return res.status(400).json({
+                error: 'name missing'
+            })
+        }
 
-    if (!req.body.number) {
-        return res.status(400).json({
-            error: 'number missing'
-        })
-    }
+        if (!req.body.number) {
+            return res.status(400).json({
+                error: 'number missing'
+            })
+        }
 
-    if (persons.map(p => p.name).includes(req.body.name)) {
-        return res.status(400).json({
-            error: 'name must be unique'
-        })
-    }
+        if (persons.map(p => p.name).includes(req.body.name)) {
+            return res.status(400).json({
+                error: 'name must be unique'
+            })
+        }
 
-    let newId = null
-    while (persons.map(p => p.id).includes(newId) || newId === null) {
-        newId = Math.floor(Math.random() * 1000000)
-    }
-    const person = new Person({
-        name: req.body.name,
-        number: req.body.number,
-        id: newId
-    })
-    person.save().then(p => {
-        res.json(p)
+        let newId = null
+        while (persons.map(p => p.id).includes(newId) || newId === null) {
+            newId = Math.floor(Math.random() * 1000000)
+        }
+        const person = new Person({
+            name: req.body.name,
+            number: req.body.number,
+            id: newId
+        })
+        person.save().then(p => {
+            res.json(p)
+        })
     })
 })
 
