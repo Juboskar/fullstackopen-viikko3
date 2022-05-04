@@ -21,23 +21,26 @@ app.get('/api/persons', (req, res) => {
     })
 })
 
-app.get('/api/persons/:id', (req, res) => {
-    const id = req.params.id
-    Person.find({ id: id }).then(result => {
-        if (result) {
+app.get('/api/persons/:id', (req, res, next) => {
+    Person.find({ id: req.params.id }).then(result => {
+        if (result.length > 0) {
             res.json(result)
         } else {
-            res.status(404).end()
+            throw new Error('not found')
         }
-    })
+    }).catch(error => next(error))
 })
 
-app.delete('/api/persons/:id', (req, res) => {
+app.delete('/api/persons/:id', (req, res, next) => {
     Person.findOneAndRemove({ id: req.params.id })
         .then(result => {
-            res.status(204).end()
+            if (result) {
+                res.status(204).end()
+            } else {
+                throw new Error('id not found')
+            }
         })
-        .catch(error => console.log(error))
+        .catch(error => next(error))
 })
 
 
@@ -48,25 +51,19 @@ app.get('/info', (req, res) => {
     })
 })
 
-app.post('/api/persons', (req, res) => {
+app.post('/api/persons', (req, res, next) => {
     Person.find({}).then(result => {
         const persons = result
         if (!req.body.name) {
-            return res.status(400).json({
-                error: 'name missing'
-            })
+            throw new Error('name missing')
         }
 
         if (!req.body.number) {
-            return res.status(400).json({
-                error: 'number missing'
-            })
+            throw new Error('number missing')
         }
 
         if (persons.map(p => p.name).includes(req.body.name)) {
-            return res.status(400).json({
-                error: 'name must be unique'
-            })
+            throw new Error('name must be unique')
         }
 
         let newId = null
@@ -81,7 +78,7 @@ app.post('/api/persons', (req, res) => {
         person.save().then(p => {
             res.json(p)
         })
-    })
+    }).catch(error => next(error))
 })
 
 const port = process.env.PORT || 3001
