@@ -5,11 +5,11 @@ const app = express()
 const cors = require('cors')
 const Person = require('./models/person')
 
+app.use(express.static('build'))
 app.use(express.json())
 morgan.token('data', (req, res) => { return JSON.stringify(req.body) })
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :data'))
 app.use(cors())
-app.use(express.static('build'))
 
 app.get('/', (req, res) => {
     res.send('<h1>Hello World!</h1>')
@@ -77,7 +77,7 @@ app.post('/api/persons', (req, res, next) => {
         })
         person.save().then(p => {
             res.json(p)
-        })
+        }).catch(error => next(error))
     }).catch(error => next(error))
 })
 
@@ -97,3 +97,15 @@ const port = process.env.PORT || 3001
 app.listen(port, () => {
     console.log(`Server running on port ${port}`)
 })
+
+const errorHandler = (error, req, res, next) => {
+    console.log("jou")
+    console.log(error.name)
+
+    return res.status(400).json({ error: error.message })
+    
+
+    next(error)
+}
+
+app.use(errorHandler)
