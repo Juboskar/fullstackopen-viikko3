@@ -87,10 +87,11 @@ app.put('/api/persons/:id', (req, res, next) => {
         number: req.body.number
     }
 
-    Person.findOneAndUpdate({ id: req.params.id }, person, { new: true })
+    Person.findOneAndUpdate({ id: req.params.id }, person,
+        { new: true, runValidators: true, context: 'query' })
         .then(updated => {
             res.json(updated)
-        })
+        }).catch(error => next(error))
 })
 
 const port = process.env.PORT || 3001
@@ -103,7 +104,7 @@ const errorHandler = (error, req, res, next) => {
     console.log(error.name)
 
     return res.status(400).json({ error: error.message })
-    
+
 
     next(error)
 }
